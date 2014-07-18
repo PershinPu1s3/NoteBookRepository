@@ -107,7 +107,7 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
     
 
     //NSString* predicateString = [[NSString alloc]initWithFormat:@"self.name beginswith [cd]%@ OR self.lastName beginswith [cd]%@", query, query ];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"self.name beginswith [cd]%@ OR self.lastName beginswith [cd]%@", query, query ];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"self.name beginswith [cd]%@ OR self.lastName beginswith [cd]%@ OR self.number beginswith [cd]%@", query, query, query ];
     //NSArray *filtered = [self.contactsBuffer subarrayWithRange:NSMakeRange(0, 5)];
     NSArray *filtered = [self.contactsBuffer filteredArrayUsingPredicate:predicate];
     
