@@ -24,17 +24,20 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
     if (sharedContactsModelInstance_ == nil)
     {
         sharedContactsModelInstance_ = [[self alloc] init];
+        sharedContactsModelInstance_.contactsFileName = @"notebook.txt";
         [sharedContactsModelInstance_ initDefaultDictionaryWithSize:20];
     }
     return sharedContactsModelInstance_;
 }
 
 
+
+
 - (void)initDefaultDictionaryWithSize:(NSInteger)size;
 {
     self.contactsBuffer = [[NSMutableArray alloc] init];
     
-    BOOL reading = [self readFromFile:@"notebook.txt"];
+    BOOL reading = [self readFromFile];
     
     if(!reading)
     {
@@ -169,6 +172,19 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
     return YES;
 }
 
+
+
+
+-(BOOL)writeToFile
+{
+    return [self writeToFile:self.contactsFileName];
+}
+
+
+-(BOOL)readFromFile
+{
+    return [self readFromFile:self.contactsFileName];
+}
 
 -(BOOL) writeToFile:(NSString*)fileName
 {

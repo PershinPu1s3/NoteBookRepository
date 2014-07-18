@@ -19,9 +19,11 @@ typedef enum {eName, eLastName} SortingOption;
 
 @interface ContactsModel : NSObject
 
-@property (weak, nonatomic) UIViewController* viewController;
+//@property (weak, nonatomic) UIViewController* viewController;
 
 @property (strong, nonatomic) NSMutableArray* contactsBuffer;
+
+@property (strong, nonatomic) NSString* contactsFileName;
 
 + (ContactsModel*)model;
 
@@ -40,6 +42,10 @@ typedef enum {eName, eLastName} SortingOption;
 -(BOOL)readFromFile:(NSString*)fileName;
 
 -(BOOL) writeToFile:(NSString*)fileName;
+
+-(BOOL)writeToFile;
+
+-(BOOL)readFromFile;
 
 + (NSString*)validatePersonData:(SinglePerson*)testPerson;
 
