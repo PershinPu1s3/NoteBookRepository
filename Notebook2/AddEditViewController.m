@@ -168,6 +168,43 @@
 }
 
 
+
+//Core Data verison
+- (void)callEditWindow:(Boolean)isEdit withIndexPath:(NSIndexPath*)currentPath
+{
+    if(!isEdit)
+    {
+        self.navigationItem.title = @"Add";
+        
+
+    }
+    else
+    {
+        self.navigationItem.title = @"Edit";
+        
+        UIButton* deleteButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+        [deleteButton addTarget:self
+                         action:@selector(deletePressed)
+               forControlEvents:UIControlEventTouchUpInside];
+        [deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
+        deleteButton.frame = CGRectMake(200.0, 250.0, 160.0, 40.0);
+        [self.view addSubview:deleteButton];
+        
+        NSManagedObject *object = [[ContactsModel model].currentFetchController objectAtIndexPath:currentPath];
+        
+        [namefield setText:[object valueForKey:@"name"]];
+        [lastNameField setText:[object valueForKey:@"lastName"]];
+        [numberField setText:[object valueForKey:@"phoneNumber"]];
+        
+        
+        
+    }
+}
+
+
+
+
+//old version
 - (void)callEditWindow:(Boolean)isEdit withIndex:(NSInteger)personIndex;
 {
     

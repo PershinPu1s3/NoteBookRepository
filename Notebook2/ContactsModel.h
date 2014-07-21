@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreData/CoreData.h>
 #import "SinglePerson.h"
 
 
@@ -17,13 +18,16 @@ typedef enum {eName, eLastName} SortingOption;
 
 
 
-@interface ContactsModel : NSObject
+@interface ContactsModel : NSObject<NSFetchedResultsControllerDelegate>
 
 //@property (weak, nonatomic) UIViewController* viewController;
 
 @property (strong, nonatomic) NSMutableArray* contactsBuffer;
 
 @property (strong, nonatomic) NSString* contactsFileName;
+
+
+
 
 + (ContactsModel*)model;
 
@@ -39,14 +43,44 @@ typedef enum {eName, eLastName} SortingOption;
 
 - (NSArray*)getContactsByQuery:(NSString*)query;
 
--(BOOL)readFromFile:(NSString*)fileName;
+- (BOOL)readFromFile:(NSString*)fileName;
 
--(BOOL) writeToFile:(NSString*)fileName;
+- (BOOL) writeToFile:(NSString*)fileName;
 
--(BOOL)writeToFile;
+- (BOOL)writeToFile;
 
--(BOOL)readFromFile;
+- (BOOL)readFromFile;
 
 + (NSString*)validatePersonData:(SinglePerson*)testPerson;
+
+
+
+
+
+
+
+
+///////////////////////////NEW MODEL SANDBOX/////////////////
+
+
+@property ( strong, nonatomic) NSManagedObjectContext *managedObjectContext;
+@property ( strong, nonatomic) NSManagedObjectModel *managedObjectModel;
+@property ( strong, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
+
+
+@property (strong, nonatomic) NSFetchRequest* currentFetchRequest;
+
+
+@property (strong, nonatomic) NSFetchedResultsController* currentFetchController;
+
+
+
+
+
+- (void) changeFetchRequest:(NSString*)query;
+
+
+
+///////////////////////////NEW MODEL////////////////////////
 
 @end

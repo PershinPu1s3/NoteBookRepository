@@ -100,8 +100,11 @@
 
 - (void)AddContactPressed
 {
+    NSUInteger elementIndex = [[[ContactsModel model].currentFetchController fetchedObjects]count];
+    
     AddEditViewController* addEdit = [[AddEditViewController alloc] initWithNibName:nil bundle:nil];
-    [addEdit callEditWindow:false withIndex:0];
+    
+    [addEdit callEditWindow:false withIndexPath:[NSIndexPath indexPathWithIndex:elementIndex]];
     [self.navigationController pushViewController:addEdit animated:YES];
 }
 
@@ -111,15 +114,38 @@
     
 //}
 
+
+
+
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return sectionHeaders.count;
+    //new
+    return [[[ContactsModel model].currentFetchController sections] count];
+    
+    //old
+    //return sectionHeaders.count;
 }
 
--(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    
+    //new
+    id <NSFetchedResultsSectionInfo> sectionInfo = [[ContactsModel model].currentFetchController sections][section];
+    return [sectionInfo numberOfObjects];
 
-    return [[elementsNumberInEachHeader objectAtIndex:section] integerValue];
+    //old
+    //return [[elementsNumberInEachHeader objectAtIndex:section] integerValue];
 }
+
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    //new
+    id <NSFetchedResultsSectionInfo> sectionInfo = [[ContactsModel model].currentFetchController sections][section];
+    return [sectionInfo name];
+
+}
+
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -138,6 +164,15 @@
     }
     
     
+    //CoreData version
+    [self configureCellFromCoreData:cell atIndexPath:indexPath];
+    return cell;
+    
+    
+    
+    
+    
+    //old version
     NSInteger currentIndex = 0;
     for(NSInteger i = 0; i < indexPath.section; i++)
     {
@@ -164,7 +199,14 @@
     
     AddEditViewController* addEdit = [[AddEditViewController alloc] initWithNibName:nil bundle:nil];
     
-    //SinglePerson* current = [data objectAtIndex:indexPath.row];
+    //coreData way
+    //NSManagedObject *object = [[ContactsModel model].currentFetchController objectAtIndexPath:indexPath];
+    [addEdit callEditWindow:true withIndexPath:indexPath];
+    
+    
+    
+    //old way
+    /*SinglePerson* current = [data objectAtIndex:indexPath.row];
     NSInteger currentIndex = 0;
     for(NSInteger i = 0; i < indexPath.section; i++)
     {
@@ -173,6 +215,10 @@
     currentIndex += indexPath.row;
     
     [addEdit callEditWindow:true withIndex:currentIndex];
+     */
+    
+    
+    
     [self.navigationController pushViewController:addEdit animated:YES];
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
@@ -180,11 +226,7 @@
 
 
 
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
-{
 
-    return [sectionHeaders objectAtIndex:section ];
-}
 
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)theSearchBar {
@@ -195,6 +237,12 @@
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
     data = [[ContactsModel model] getContactsByQuery:searchText];
+    
+    //change fetch query and fetch controller in model(?)
+    [[ContactsModel model] changeFetchRequest:searchText];
+    
+    
+    
     [self renewTableData];
     //reload table by query
     
@@ -207,6 +255,21 @@
     [searchBar resignFirstResponder];
 }
 
+
+- (void)configureCellFromCoreData:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
+{
+    NSManagedObject *object = [[ContactsModel model].currentFetchController objectAtIndexPath:indexPath];
+    
+    NSMutableString* viewNameAndLastName = [[NSMutableString alloc]initWithString:[[object valueForKey:@"name"] description]] ;
+    [viewNameAndLastName appendString:@" "];
+    [viewNameAndLastName appendString:[[NSString alloc]initWithString:[[object valueForKey:@"lastName"] description]]];
+    
+    NSString* viewNumber = [[NSString alloc]initWithString:[[object valueForKey:@"phoneNumber"] description]];
+    
+    [cell.textLabel setText: viewNameAndLastName];
+    [cell.detailTextLabel setText: viewNumber];
+    
+}
 
 
     //[[ContactsModel model] writeToFile:@"notebook.txt"];

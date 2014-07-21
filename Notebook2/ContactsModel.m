@@ -23,10 +23,45 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
 {
     if (sharedContactsModelInstance_ == nil)
     {
+        
+        //old verison initialization
+        
         sharedContactsModelInstance_ = [[self alloc] init];
         sharedContactsModelInstance_.contactsFileName = @"notebook.txt";
+        
+        
+        
+        //Core Data initialization
+        
+        
+        
+        NSURL *modelURL = [[NSBundle mainBundle] URLForResource:@"SinglePersonModel" withExtension:@"momd"];
+        sharedContactsModelInstance_.managedObjectModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        
+        NSURL* applicationDocumentsDirectory = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+        NSURL *storeURL = [applicationDocumentsDirectory URLByAppendingPathComponent:@"NotebookData.sqlite"];
+        
+        
+        NSError *error = nil;
+        sharedContactsModelInstance_.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:
+                                                                   sharedContactsModelInstance_.managedObjectModel];
+        
+        sharedContactsModelInstance_.managedObjectContext = [[NSManagedObjectContext alloc] init];
+        [sharedContactsModelInstance_.managedObjectContext setPersistentStoreCoordinator:sharedContactsModelInstance_.persistentStoreCoordinator];
+        
+        if (![sharedContactsModelInstance_.persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:
+              storeURL options:nil error:&error])
+        {
+            NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+            abort();
+        }
+        
+        
+        
         [sharedContactsModelInstance_ initDefaultDictionaryWithSize:20];
     }
+
+    
     return sharedContactsModelInstance_;
 }
 
@@ -35,6 +70,8 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
 
 - (void)initDefaultDictionaryWithSize:(NSInteger)size;
 {
+    
+    
     self.contactsBuffer = [[NSMutableArray alloc] init];
     
     BOOL reading = [self readFromFile];
@@ -45,7 +82,20 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
             [self.contactsBuffer addObject: [[SinglePerson alloc]randomPerson]];
     }
     
+    
+    for(int i=0; i < size; i++)
+    {
+        NSManagedObject* newObject =
+    }
+    
     [self sortBy:eName];
+    
+    
+    
+    
+    
+    //Core Data rows addition
+    
 
     
     
@@ -217,7 +267,14 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
     return [totalString writeToFile:fullFilePath atomically:YES encoding:NSUTF8StringEncoding error:&err];
 }
     
-    
+
+
+-(void) changeFetchRequest:(NSString*)query
+{
+    [self.currentFetchRequest setPredicate:[NSPredicate predicateWithFormat:@"name beginswith [cd]%@ OR lastName beginswith [cd]%@", query, query ]];
+    self.currentFetchController = [[NSFetchedResultsController alloc] initWithFetchRequest:self.currentFetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:nil cacheName:nil];
+    [self.currentFetchController performFetch:nil];
+}
     
     
     

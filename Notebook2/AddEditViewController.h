@@ -17,4 +17,6 @@
 
 - (void)callEditWindow:(Boolean)isEdit withIndex:(NSInteger)personIndex;
 
+- (void)callEditWindow:(Boolean)isEdit withIndexPath:(NSIndexPath*)currentPath;
+
 @end
