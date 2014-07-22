@@ -120,7 +120,7 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
     if([query isEqualToString:@""])
         [self.currentFetchRequest setPredicate:[NSPredicate predicateWithValue:YES]];
     else
-        [self.currentFetchRequest setPredicate:[NSPredicate predicateWithFormat:@"name beginswith [cd]%@ OR lastName beginswith [cd]%@", query, query ]];
+        [self.currentFetchRequest setPredicate:[NSPredicate predicateWithFormat:@"name beginswith [cd]%@ OR lastName beginswith [cd]%@ OR phoneNumber beginswith [cd]%@", query, query ]];
     
     
     NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES selector:@selector(caseInsensitiveCompare:)];
@@ -138,17 +138,6 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
 
 - (void) refetch
 {
-//    if([query isEqualToString:@""])
-//        return self.contactsBuffer;
-//    
-//
-//    //NSString* predicateString = [[NSString alloc]initWithFormat:@"self.name beginswith [cd]%@ OR self.lastName beginswith [cd]%@", query, query ];
-//    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"self.name beginswith [cd]%@ OR self.lastName beginswith [cd]%@ OR self.number beginswith [cd]%@", query, query, query ];
-//    //NSArray *filtered = [self.contactsBuffer subarrayWithRange:NSMakeRange(0, 5)];
-//    NSArray *filtered = [self.contactsBuffer filteredArrayUsingPredicate:predicate];
-//    
-//    
-//    return filtered;
 
     [self.currentFetchController performFetch:nil];
 }
