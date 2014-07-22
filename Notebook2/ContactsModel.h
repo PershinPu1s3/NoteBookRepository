@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 #import "SinglePerson.h"
+#import "NoteBookRepository.h"
 
 
 
@@ -20,42 +21,12 @@ typedef enum {eName, eLastName} SortingOption;
 
 @interface ContactsModel : NSObject<NSFetchedResultsControllerDelegate>
 
-//@property (weak, nonatomic) UIViewController* viewController;
-
-@property (strong, nonatomic) NSMutableArray* contactsBuffer;
-
-@property (strong, nonatomic) NSString* contactsFileName;
-
-
 
 
 + (ContactsModel*)model;
 
-- (void)initDefaultDictionaryWithSize:(NSInteger)size;
 
-- (void)addNewContact:(SinglePerson*) ewContact;
-
-- (void)editContactByIndex:(NSUInteger)indexPath withNewContact:(SinglePerson*) contact;
-
-- (void)deleteContactByIndex:(NSUInteger)indexPath;
-
-- (void)sortBy:(SortingOption)option;
-
-- (NSArray*)getContactsByQuery:(NSString*)query;
-
-- (BOOL)readFromFile:(NSString*)fileName;
-
-- (BOOL) writeToFile:(NSString*)fileName;
-
-- (BOOL)writeToFile;
-
-- (BOOL)readFromFile;
-
-+ (NSString*)validatePersonData:(SinglePerson*)testPerson;
-
-
-
-
++ (NSString*)validatePersonName:(NSString*)name lastName:(NSString*)lastName phoneNumber:(NSString*)number;
 
 
 
@@ -63,21 +34,35 @@ typedef enum {eName, eLastName} SortingOption;
 ///////////////////////////NEW MODEL SANDBOX/////////////////
 
 
-@property ( strong, nonatomic) NSManagedObjectContext *managedObjectContext;
-@property ( strong, nonatomic) NSManagedObjectModel *managedObjectModel;
-@property ( strong, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
+@property ( strong, nonatomic) NSManagedObjectContext* managedObjectContext;
+@property ( strong, nonatomic) NSManagedObjectModel* managedObjectModel;
+@property ( strong, nonatomic) NSPersistentStoreCoordinator* persistentStoreCoordinator;
+@property (strong, nonatomic) NSEntityDescription* entity;
 
 
 @property (strong, nonatomic) NSFetchRequest* currentFetchRequest;
-
-
 @property (strong, nonatomic) NSFetchedResultsController* currentFetchController;
 
 
 
 
+- (void) renewFetchControllerByQuery:(NSString*)query;
 
-- (void) changeFetchRequest:(NSString*)query;
+- (BOOL) addPersonName:(NSString*)name withLastName:(NSString*)lastName andPhoneNumber:(NSString*)number;
+
+- (BOOL) editPersonName:(NSString*)name withLastName:(NSString*)lastName andPhoneNumber:(NSString*)number atFetchIndexPath:(NSIndexPath*)path;
+
+- (BOOL) deletePersonAtIndexPath:(NSIndexPath*)path;
+
+- (NoteBookRepository*)getObjectAtIndexPath:(NSIndexPath*)path;
+
+- (void) refetch;
+//after changing request, adding, editing, or deleting
+
+//- (void) resetHeaders;
+//will be in refetch...or not, if doesn't needed
+
+- (void)initDefaultDictionaryWithSize:(NSInteger)size;
 
 
 

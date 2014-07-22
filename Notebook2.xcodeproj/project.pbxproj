@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		BC562314197D1BED00A9D8C8 /* SinglePersonModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BC562312197D1BED00A9D8C8 /* SinglePersonModel.xcdatamodeld */; };
+		BC562318197D463F00A9D8C8 /* NotebookModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BC562316197D463F00A9D8C8 /* NotebookModel.xcdatamodeld */; };
 		BC5CDFB51975499900E636B5 /* SinglePerson.m in Sources */ = {isa = PBXBuildFile; fileRef = BC5CDFB41975499900E636B5 /* SinglePerson.m */; };
 		BC88B3311973F8A900C6476D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC88B3301973F8A900C6476D /* Foundation.framework */; };
 		BC88B3331973F8A900C6476D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC88B3321973F8A900C6476D /* CoreGraphics.framework */; };
@@ -26,6 +26,7 @@
 		BC88B36C197400AF00C6476D /* ContactsModel.m in Sources */ = {isa = PBXBuildFile; fileRef = BC88B36B197400AF00C6476D /* ContactsModel.m */; };
 		BC88B3701974025B00C6476D /* AddEditViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BC88B36E1974025B00C6476D /* AddEditViewController.m */; };
 		BC88B3711974025B00C6476D /* AddEditViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC88B36F1974025B00C6476D /* AddEditViewController.xib */; };
+		BCAD072B197E5BCB0037ED00 /* NoteBookRepository.m in Sources */ = {isa = PBXBuildFile; fileRef = BCAD072A197E5BCB0037ED00 /* NoteBookRepository.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,7 +40,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		BC562313197D1BED00A9D8C8 /* SinglePersonModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SinglePersonModel.xcdatamodel; sourceTree = "<group>"; };
+		BC562317197D463F00A9D8C8 /* NotebookModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = NotebookModel.xcdatamodel; sourceTree = "<group>"; };
 		BC5CDFB31975499900E636B5 /* SinglePerson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SinglePerson.h; sourceTree = "<group>"; };
 		BC5CDFB41975499900E636B5 /* SinglePerson.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SinglePerson.m; sourceTree = "<group>"; };
 		BC88B32D1973F8A900C6476D /* Notebook2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Notebook2.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -66,6 +67,8 @@
 		BC88B36D1974025B00C6476D /* AddEditViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddEditViewController.h; sourceTree = "<group>"; };
 		BC88B36E1974025B00C6476D /* AddEditViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddEditViewController.m; sourceTree = "<group>"; };
 		BC88B36F1974025B00C6476D /* AddEditViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AddEditViewController.xib; sourceTree = "<group>"; };
+		BCAD0729197E5BCB0037ED00 /* NoteBookRepository.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NoteBookRepository.h; path = ../NoteBookRepository.h; sourceTree = "<group>"; };
+		BCAD072A197E5BCB0037ED00 /* NoteBookRepository.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NoteBookRepository.m; path = ../NoteBookRepository.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -177,7 +180,9 @@
 				BC88B36B197400AF00C6476D /* ContactsModel.m */,
 				BC5CDFB31975499900E636B5 /* SinglePerson.h */,
 				BC5CDFB41975499900E636B5 /* SinglePerson.m */,
-				BC562312197D1BED00A9D8C8 /* SinglePersonModel.xcdatamodeld */,
+				BC562316197D463F00A9D8C8 /* NotebookModel.xcdatamodeld */,
+				BCAD0729197E5BCB0037ED00 /* NoteBookRepository.h */,
+				BCAD072A197E5BCB0037ED00 /* NoteBookRepository.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -280,10 +285,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BCAD072B197E5BCB0037ED00 /* NoteBookRepository.m in Sources */,
 				BC5CDFB51975499900E636B5 /* SinglePerson.m in Sources */,
 				BC88B34A1973F8A900C6476D /* ViewController.m in Sources */,
 				BC88B3411973F8A900C6476D /* AppDelegate.m in Sources */,
-				BC562314197D1BED00A9D8C8 /* SinglePersonModel.xcdatamodeld in Sources */,
+				BC562318197D463F00A9D8C8 /* NotebookModel.xcdatamodeld in Sources */,
 				BC88B36C197400AF00C6476D /* ContactsModel.m in Sources */,
 				BC88B3701974025B00C6476D /* AddEditViewController.m in Sources */,
 				BC88B33D1973F8A900C6476D /* main.m in Sources */,
@@ -499,13 +505,13 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		BC562312197D1BED00A9D8C8 /* SinglePersonModel.xcdatamodeld */ = {
+		BC562316197D463F00A9D8C8 /* NotebookModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				BC562313197D1BED00A9D8C8 /* SinglePersonModel.xcdatamodel */,
+				BC562317197D463F00A9D8C8 /* NotebookModel.xcdatamodel */,
 			);
-			currentVersion = BC562313197D1BED00A9D8C8 /* SinglePersonModel.xcdatamodel */;
-			path = SinglePersonModel.xcdatamodeld;
+			currentVersion = BC562317197D463F00A9D8C8 /* NotebookModel.xcdatamodel */;
+			path = NotebookModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};

@@ -9,6 +9,7 @@
 #import "ContactsModel.h"
 
 
+
 static ContactsModel* sharedContactsModelInstance_ = nil;
 
 @interface ContactsModel()
@@ -23,32 +24,16 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
 {
     if (sharedContactsModelInstance_ == nil)
     {
+        sharedContactsModelInstance_ = [[ContactsModel alloc]init];
         
-        //old verison initialization
-        
-        sharedContactsModelInstance_ = [[self alloc] init];
-        sharedContactsModelInstance_.contactsFileName = @"notebook.txt";
-        
-        
-        
-        //Core Data initialization
-        
-        
-        
-        NSURL *modelURL = [[NSBundle mainBundle] URLForResource:@"SinglePersonModel" withExtension:@"momd"];
-        sharedContactsModelInstance_.managedObjectModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
-        
-        NSURL* applicationDocumentsDirectory = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
-        NSURL *storeURL = [applicationDocumentsDirectory URLByAppendingPathComponent:@"NotebookData.sqlite"];
-        
+        NSURL *modelURL = [[NSBundle mainBundle] URLForResource:@"NotebookModel" withExtension:@"momd"];
+        sharedContactsModelInstance_.managedObjectModel = [[NSManagedObjectModel mergedModelFromBundles:nil] initWithContentsOfURL:modelURL];
         
         NSError *error = nil;
         sharedContactsModelInstance_.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:
                                                                    sharedContactsModelInstance_.managedObjectModel];
-        
-        sharedContactsModelInstance_.managedObjectContext = [[NSManagedObjectContext alloc] init];
-        [sharedContactsModelInstance_.managedObjectContext setPersistentStoreCoordinator:sharedContactsModelInstance_.persistentStoreCoordinator];
-        
+        NSURL* applicationDocumentsDirectory = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+        NSURL *storeURL = [applicationDocumentsDirectory URLByAppendingPathComponent:@"NotebookData.sqlite"];
         if (![sharedContactsModelInstance_.persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:
               storeURL options:nil error:&error])
         {
@@ -56,12 +41,28 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
             abort();
         }
         
+        sharedContactsModelInstance_.managedObjectContext = [[NSManagedObjectContext alloc] init];
+        [sharedContactsModelInstance_.managedObjectContext setPersistentStoreCoordinator:sharedContactsModelInstance_.persistentStoreCoordinator];
+        
+        sharedContactsModelInstance_.entity = [NSEntityDescription entityForName:@"PhoneBookEntity" inManagedObjectContext:sharedContactsModelInstance_.managedObjectContext];
+        
+        sharedContactsModelInstance_.currentFetchRequest = [[NSFetchRequest alloc] init];
+        [sharedContactsModelInstance_.currentFetchRequest setEntity:sharedContactsModelInstance_.entity];
+        [sharedContactsModelInstance_.currentFetchRequest setFetchBatchSize:20];
         
         
-        [sharedContactsModelInstance_ initDefaultDictionaryWithSize:20];
-    }
+        [sharedContactsModelInstance_ renewFetchControllerByQuery:@""];
+        [sharedContactsModelInstance_ refetch];
+        
+        if([[sharedContactsModelInstance_.currentFetchController fetchedObjects]count] == 0)
+        {
+            [sharedContactsModelInstance_ initDefaultDictionaryWithSize:20];
+        }
+        
 
-    
+        [sharedContactsModelInstance_.currentFetchController performFetch:nil];
+      
+    }
     return sharedContactsModelInstance_;
 }
 
@@ -70,119 +71,93 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
 
 - (void)initDefaultDictionaryWithSize:(NSInteger)size;
 {
-    
-    
-    self.contactsBuffer = [[NSMutableArray alloc] init];
-    
-    BOOL reading = [self readFromFile];
-    
-    if(!reading)
-    {
-        for(int i=0; i < size; i++)
-            [self.contactsBuffer addObject: [[SinglePerson alloc]randomPerson]];
-    }
-    
-    
     for(int i=0; i < size; i++)
     {
-        NSManagedObject* newObject =
+        SinglePerson* newPerson = [[SinglePerson alloc]randomPerson];
+        [self addPersonName:newPerson.name withLastName:newPerson.lastName andPhoneNumber:newPerson.number];
     }
-    
-    [self sortBy:eName];
-    
-    
-    
-    
-    
-    //Core Data rows addition
-    
-
-    
-    
 }
 
-- (void)addNewContact:(SinglePerson*)newContact
+
+- (NoteBookRepository*)getObjectAtIndexPath:(NSIndexPath*)path
 {
-    [self.contactsBuffer addObject:newContact];
-    
-   // UIAlertView *helloWorldAlert = [[UIAlertView alloc]
-     //                               initWithTitle:@"Hello from model" message:@"GOT ADD REQUEST" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-    
-    // Display the Hello World Message
-    //[helloWorldAlert show];
+    return [self.currentFetchController objectAtIndexPath:path];
 }
 
 
-- (void)editContactByIndex:(NSUInteger)indexPath withNewContact:(SinglePerson*) contact;
+- (BOOL) addPersonName:(NSString*)name withLastName:(NSString*)lastName andPhoneNumber:(NSString*)number
 {
-    if(indexPath < self.contactsBuffer.count)
-        [self deleteContactByIndex:indexPath];
-    [self.contactsBuffer insertObject:contact atIndex:indexPath];
+    //validity check should be done by ManagedObject itself. But how?
     
-    //UIAlertView *helloWorldAlert = [[UIAlertView alloc]
-         //                           initWithTitle:@"Hello from model" message:@"GOT EDIT REQUEST" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
     
-    // Display the Hello World Message
-    //[helloWorldAlert show];
+    NoteBookRepository* newObject = [[NoteBookRepository alloc] initWithEntity:self.entity insertIntoManagedObjectContext:self.managedObjectContext];
+    newObject.name = name;
+    newObject.lastName = lastName;
+    newObject.phoneNumber = number;
+    
+    unichar firstLetter = [name characterAtIndex:0];
+    NSString* sectionName = [[[NSString alloc]initWithFormat:@"%c",firstLetter] uppercaseString];
+    newObject.section = sectionName;
+    
+    [self.managedObjectContext save:nil];
+    
+    return YES;
 }
 
-
-- (void)deleteContactByIndex:(NSUInteger)indexPath
+- (BOOL) deletePersonAtIndexPath:(NSIndexPath*)path
 {
-    [self.contactsBuffer removeObjectAtIndex:indexPath];
+    NoteBookRepository* newObject = [self getObjectAtIndexPath:path];
+    [self.managedObjectContext deleteObject:newObject];
+    
+    [self.managedObjectContext save:nil];
+    return YES;
 }
 
 
 
-- (void)sortBy:(SortingOption)option
-{
-    NSArray* sortedArray;
-    if(option == eName)
-    {
-        sortedArray = [self.contactsBuffer sortedArrayUsingSelector:@selector(compareByName:)] ;
-    }
-    else
-    {
-        sortedArray = [self.contactsBuffer sortedArrayUsingSelector:@selector(compareByLastName:)] ;
-    }
-    [self.contactsBuffer setArray:sortedArray ];
-}
-
-
-
-- (NSArray*)getContactsByQuery:(NSString*)query;
+-(void) renewFetchControllerByQuery:(NSString*)query
 {
     if([query isEqualToString:@""])
-        return self.contactsBuffer;
-    
-
-    //NSString* predicateString = [[NSString alloc]initWithFormat:@"self.name beginswith [cd]%@ OR self.lastName beginswith [cd]%@", query, query ];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"self.name beginswith [cd]%@ OR self.lastName beginswith [cd]%@", query, query ];
-    //NSArray *filtered = [self.contactsBuffer subarrayWithRange:NSMakeRange(0, 5)];
-    NSArray *filtered = [self.contactsBuffer filteredArrayUsingPredicate:predicate];
+        [self.currentFetchRequest setPredicate:[NSPredicate predicateWithValue:YES]];
+    else
+        [self.currentFetchRequest setPredicate:[NSPredicate predicateWithFormat:@"name beginswith [cd]%@ OR lastName beginswith [cd]%@", query, query ]];
     
     
-    return filtered;
-
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES selector:@selector(caseInsensitiveCompare:)];
+    NSArray *sortDescriptors = @[sortDescriptor];
+    [self.currentFetchRequest setSortDescriptors:sortDescriptors];
+    
+    self.currentFetchController = [[NSFetchedResultsController alloc] initWithFetchRequest:self.currentFetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:@"section" cacheName:nil];
+    
+    
+    
+    
 }
 
 
 
-+ (NSString*)validatePersonData:(SinglePerson*)testPerson;
+- (void) refetch
+{
+    [self.currentFetchController performFetch:nil];
+}
+
+
+
++ (NSString*)validatePersonName:(NSString*)name lastName:(NSString*)lastName phoneNumber:(NSString*)number
 {
     NSMutableString* result = [[NSMutableString alloc]initWithString:@""];
     
     
-    if([testPerson.name rangeOfString:@"[^A-Za-z .]" options:NSRegularExpressionSearch].location != NSNotFound)
+    if([name rangeOfString:@"[^A-Za-z .]" options:NSRegularExpressionSearch].location != NSNotFound)
     {
         [result appendString:@" Bad name"];
     }
-    if([testPerson.lastName rangeOfString:@"[^A-Za-z .]" options:NSRegularExpressionSearch].location != NSNotFound)
+    if([lastName rangeOfString:@"[^A-Za-z .]" options:NSRegularExpressionSearch].location != NSNotFound)
     {
         [result appendString:@" Bad last name"];
     }
-    //([0-9])\{12\}
-    if([testPerson.number rangeOfString:@"[+]([0-9])\{12\}" options:NSRegularExpressionSearch].location == NSNotFound || testPerson.number.length > 13)
+    //rude
+    if([number rangeOfString:@"[+]([0-9])\{12\}" options:NSRegularExpressionSearch].location == NSNotFound || number.length > 13)
     {
         [result appendString:@" Bad phone number"];
     }
@@ -192,32 +167,43 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
 
 
 
--(BOOL)readFromFile:(NSString*)fileName
+    
+
+
+
+
+    
+//never called
+/*- (void) resetHeaders
 {
-    
-    NSFileHandle *file;
-    
-    NSString *cachesFolder = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
-    NSString *fullFilePath = [cachesFolder stringByAppendingPathComponent:fileName];
-    
-    [self.contactsBuffer removeAllObjects];
-    
-    if (!(file = [NSFileHandle fileHandleForReadingAtPath:fullFilePath]))
-        return NO;
-    
-    NSData* databuffer = [[NSData alloc] initWithContentsOfFile:fullFilePath];
-    if(!databuffer)
-        return NO;
-    
-    
-    NSArray* stringsBuffer = [[[NSString alloc] initWithData:databuffer encoding:NSUTF8StringEncoding] componentsSeparatedByString:@"!"];
-    for(NSString* current in stringsBuffer)
+    [self.currentFetchController performFetch:nil];
+    NSArray* allObjects = [self.currentFetchController fetchedObjects];
+    for(NSManagedObject* current in allObjects)
     {
-        SinglePerson* p = [[SinglePerson alloc]init];
-        if([p unserialize:current])
-            [self.contactsBuffer addObject:p];
+        unichar firstLetter = [[current valueForKey:@"name"] characterAtIndex:0];
+        NSString* sectionName = [[[NSString alloc]initWithFormat:@"%c",firstLetter] uppercaseString];
+        [current setValue:sectionName forKey:@"section"];
     }
+}*/
+
+
+
+
+
+
+- (BOOL) editPersonName:(NSString*)name withLastName:(NSString*)lastName andPhoneNumber:(NSString*)number atFetchIndexPath:(NSIndexPath*)path
+{
+    NoteBookRepository* newObject = [self getObjectAtIndexPath:path];
     
+    newObject.name = name;
+    newObject.lastName = lastName;
+    newObject.phoneNumber = number;
+    
+    unichar firstLetter = [name characterAtIndex:0];
+    NSString* sectionName = [[[NSString alloc]initWithFormat:@"%c",firstLetter] uppercaseString];
+    newObject.section = sectionName;
+    
+    [self.managedObjectContext save:nil];
     
     return YES;
 }
@@ -225,59 +211,9 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
 
 
 
--(BOOL)writeToFile
-{
-    return [self writeToFile:self.contactsFileName];
-}
+//after changing request, adding, editing, or deleting
 
 
--(BOOL)readFromFile
-{
-    return [self readFromFile:self.contactsFileName];
-}
-
--(BOOL) writeToFile:(NSString*)fileName
-{
-    //NSFileManager* manager = [[NSFileManager alloc]init];
-    
-    //if(![manager fileExistsAtPath:fileName])
-    //{
-    
-    NSError* err;
-    
-    NSString* totalString;
-    
-    NSString *cachesFolder = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
-    NSString *fullFilePath = [cachesFolder stringByAppendingPathComponent:fileName];
-    
-
-    totalString = [self.contactsBuffer componentsJoinedByString:@"!"];
-    
-    //bool res = [dataTest writeToFile:file options:NSDataWritingAtomic error:&err];
-
-    
-    
-   // BOOL ok = [str writeToFile:myFile atomically:YES encoding:NSUnicodeStringEncoding error:&err];
-    
-    
-     //BOOL result =  [manager createFileAtPath:myFile contents:nil attributes:nil];&err
-    //manager
-    //}
-    //return res;
-    return [totalString writeToFile:fullFilePath atomically:YES encoding:NSUTF8StringEncoding error:&err];
-}
-    
-
-
--(void) changeFetchRequest:(NSString*)query
-{
-    [self.currentFetchRequest setPredicate:[NSPredicate predicateWithFormat:@"name beginswith [cd]%@ OR lastName beginswith [cd]%@", query, query ]];
-    self.currentFetchController = [[NSFetchedResultsController alloc] initWithFetchRequest:self.currentFetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:nil cacheName:nil];
-    [self.currentFetchController performFetch:nil];
-}
-    
-    
-    
 
 
 @end
