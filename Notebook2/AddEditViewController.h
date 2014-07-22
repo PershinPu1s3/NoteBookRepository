@@ -11,10 +11,9 @@
 
 @interface AddEditViewController : UIViewController<UITextFieldDelegate>
 
-@property (nonatomic) NSInteger currentPersonIndex;
+@property (strong, nonatomic) NSIndexPath* currentPersonIndexPath;
 
-@property (strong, nonatomic) SinglePerson* currentPerson;
+- (void)callEditWindowWithPath:(NSIndexPath*)currentPath;
 
-- (void)callEditWindow:(Boolean)isEdit withIndex:(NSInteger)personIndex;
 
 @end

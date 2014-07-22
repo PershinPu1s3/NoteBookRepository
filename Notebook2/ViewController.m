@@ -9,16 +9,17 @@
 #import "ViewController.h"
 #import "AddEditViewController.h"
 #import "SinglePerson.h"
+#import "NoteBookRepository.h"
 
 @interface ViewController()
 {
     IBOutlet UITableView* contactsTable;
     IBOutlet UINavigationBar* contactsNavigationBar;
     IBOutlet UISearchBar* searchBar;
-    NSArray* data;
+    //NSArray* data;
     
-    NSMutableArray* sectionHeaders;
-    NSMutableArray* elementsNumberInEachHeader;
+    //NSMutableArray* sectionHeaders;
+    //NSMutableArray* elementsNumberInEachHeader;
     
 }
 
@@ -37,11 +38,11 @@
     self.navigationItem.rightBarButtonItem = button;
     self.navigationItem.title = @"Contacts";
     
-    data = [[ContactsModel model] getContactsByQuery:@""];
+    //data = [[ContactsModel model] getContactsByQuery:@""];
     
-    sectionHeaders = [[NSMutableArray alloc]init];
-    elementsNumberInEachHeader = [[NSMutableArray alloc]init];
-    [self renewHeaders];
+    //sectionHeaders = [[NSMutableArray alloc]init];
+    //elementsNumberInEachHeader = [[NSMutableArray alloc]init];
+    //[self renewHeaders];
     
 	// Do any additional setup after loading the view, typically from a nib.
     //self.navigationItem.title = @"Contacts";
@@ -54,72 +55,44 @@
 }
 
 
-
-- (void)renewHeaders
-{
-    [[ContactsModel model] sortBy:eName];
-    
-    [sectionHeaders removeAllObjects];
-    [elementsNumberInEachHeader removeAllObjects];
-    
-    for(SinglePerson* current in data)
-    {
-        NSString* firstSymbol = [current.name substringToIndex:1];
-        NSString* firstBigSymbol = [firstSymbol uppercaseString];
-        
-        if(!([sectionHeaders.lastObject isEqualToString:firstSymbol] || [sectionHeaders.lastObject isEqualToString:firstBigSymbol]))
-        {
-            [sectionHeaders addObject:firstBigSymbol];
-            [elementsNumberInEachHeader addObject:[NSNumber numberWithInt:1]];
-        }
-        else
-        {
-            //only the way I found to increment last integer element
-            //numberWithInt doesn't work
-            
-            NSNumber* currentCounter = [[NSNumber alloc] initWithInt:0];
-            currentCounter = [elementsNumberInEachHeader lastObject];
-            
-            int currentIntCounter = [currentCounter intValue];
-            currentIntCounter++;
-            NSNumber* currentCounter2 = [[NSNumber alloc] initWithInt:currentIntCounter];
-            
-            [elementsNumberInEachHeader removeLastObject];
-            [elementsNumberInEachHeader addObject:currentCounter2];
-            
-        }
-    }
-}
-
-
 - (void)renewTableData
 {
-    [self renewHeaders];
+    [[ContactsModel model] refetch];
     [contactsTable reloadData];
 }
 
 - (void)AddContactPressed
 {
     AddEditViewController* addEdit = [[AddEditViewController alloc] initWithNibName:nil bundle:nil];
-    [addEdit callEditWindow:false withIndex:0];
+    //[addEdit callEditWindow:false withIndexPath:nil];
+    [addEdit callEditWindowWithPath:nil];
+    
     [self.navigationController pushViewController:addEdit animated:YES];
 }
 
-//- (void)EditContactPressed
-//{
-    
-    
-//}
+
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return sectionHeaders.count;
+    //DIRECTACCESS
+    return [[[ContactsModel model].currentFetchController sections] count];
 }
 
--(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-
-    return [[elementsNumberInEachHeader objectAtIndex:section] integerValue];
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    //DIRECTACCESS
+    id <NSFetchedResultsSectionInfo> sectionInfo = [[ContactsModel model].currentFetchController sections][section];
+    return [sectionInfo numberOfObjects];
 }
+
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    //DIRECTACCESS
+    id <NSFetchedResultsSectionInfo> sectionInfo = [[ContactsModel model].currentFetchController sections][section];
+    return [sectionInfo name];
+}
+
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -136,27 +109,26 @@
     {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:cellIdentifier];
     }
+
+    [self configureCellFromCoreData:cell atIndexPath:indexPath];
+    return cell;
+  
+}
+
+
+- (void)configureCellFromCoreData:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
+{
+    NoteBookRepository *object = [[ContactsModel model].currentFetchController objectAtIndexPath:indexPath];
     
-    
-    NSInteger currentIndex = 0;
-    for(NSInteger i = 0; i < indexPath.section; i++)
-    {
-        currentIndex += [[elementsNumberInEachHeader objectAtIndex:i] integerValue];
-    }
-    currentIndex += indexPath.row;
-    
-    
-    SinglePerson* current = [data objectAtIndex:currentIndex];
-    NSMutableString* viewNameAndLastName = [[NSMutableString alloc]initWithString:(current.name)] ;
+    NSMutableString* viewNameAndLastName = [[NSMutableString alloc]initWithString:[object.name description]] ;
     [viewNameAndLastName appendString:@" "];
-    [viewNameAndLastName appendString:(current.lastName)];
+    [viewNameAndLastName appendString:[[NSString alloc]initWithString:[object.lastName  description]]];
     
-    NSString* viewNumber = [[NSString alloc]initWithString:(current.number)];
+    NSString* viewNumber = [[NSString alloc]initWithString:[object.phoneNumber description]];
     
     [cell.textLabel setText: viewNameAndLastName];
     [cell.detailTextLabel setText: viewNumber];
     
-    return cell;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -164,39 +136,31 @@
     
     AddEditViewController* addEdit = [[AddEditViewController alloc] initWithNibName:nil bundle:nil];
     
-    //SinglePerson* current = [data objectAtIndex:indexPath.row];
-    NSInteger currentIndex = 0;
-    for(NSInteger i = 0; i < indexPath.section; i++)
-    {
-        currentIndex += [[elementsNumberInEachHeader objectAtIndex:i] integerValue];
-    }
-    currentIndex += indexPath.row;
+    //[addEdit callEditWindow:true withIndexPath:indexPath];
+
     
-    [addEdit callEditWindow:true withIndex:currentIndex];
+    [addEdit callEditWindowWithPath:indexPath];
+    
     [self.navigationController pushViewController:addEdit animated:YES];
-    
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 
 
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+
+
+
+- (void)searchBarSearchButtonClicked:(UISearchBar *)theSearchBar
 {
-
-    return [sectionHeaders objectAtIndex:section ];
-}
-
-
-- (void)searchBarSearchButtonClicked:(UISearchBar *)theSearchBar {
     [searchBar resignFirstResponder];
 }
 
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
-    data = [[ContactsModel model] getContactsByQuery:searchText];
+
+    [[ContactsModel model] renewFetchControllerByQuery:searchText];
     [self renewTableData];
-    //reload table by query
     
 }
 
@@ -206,6 +170,8 @@
 {
     [searchBar resignFirstResponder];
 }
+
+
 
 
 

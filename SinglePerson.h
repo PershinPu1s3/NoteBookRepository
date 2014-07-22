@@ -26,8 +26,8 @@
 
 - (SinglePerson*)randomPerson;
 
-- (NSData*)serialize;
+//- (NSData*)serialize;
 
-- (BOOL)unserialize:(NSString*)src;
+//- (BOOL)unserialize:(NSString*)src;
 
 @end

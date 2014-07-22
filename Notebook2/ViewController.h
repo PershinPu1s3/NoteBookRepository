@@ -10,7 +10,8 @@
 #import "AppDelegate.h"
 #import "ContactsModel.h"
 
-@interface ViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate>
+
+@interface ViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, NSFetchedResultsControllerDelegate>
 
 - (void)renewTableData;
 
