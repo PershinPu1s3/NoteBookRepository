@@ -7,6 +7,7 @@
 //
 
 #import "ContactsModel.h"
+#import <AddressBook/AddressBook.h>
 
 
 
@@ -56,11 +57,14 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
         
         if([[sharedContactsModelInstance_.currentFetchController fetchedObjects]count] == 0)
         {
-            [sharedContactsModelInstance_ initDefaultDictionaryWithSize:20];
+            [sharedContactsModelInstance_ initDefaultDictionaryWithSize:10];
         }
         
 
         [sharedContactsModelInstance_.currentFetchController performFetch:nil];
+        
+        
+        [sharedContactsModelInstance_ getContactsFromPhone ];
       
     }
     return sharedContactsModelInstance_;
@@ -76,6 +80,59 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
         SinglePerson* newPerson = [[SinglePerson alloc]randomPerson];
         [self addPersonName:newPerson.name withLastName:newPerson.lastName andPhoneNumber:newPerson.number];
     }
+}
+
+
+
+- (NSArray*)getContactsFromPhone
+{
+    CFErrorRef *error = NULL;
+    ABAddressBookRef addressBook = ABAddressBookCreateWithOptions(NULL, error);
+    CFArrayRef allPeople = ABAddressBookCopyArrayOfAllPeople(addressBook);
+    CFIndex numberOfPeople = ABAddressBookGetPersonCount(addressBook);
+    
+    NSMutableArray* phonePeople = [[NSMutableArray alloc]init];
+    
+    for(int i=0; i < numberOfPeople; i++)
+    {
+        NoteBookRepository* newPerson = [[NoteBookRepository alloc]init];
+        
+        ABRecordRef person = CFArrayGetValueAtIndex( allPeople, i );
+        
+        newPerson.name = (__bridge NSString *)(ABRecordCopyValue(person, kABPersonFirstNameProperty));
+        newPerson.lastName = (__bridge NSString *)(ABRecordCopyValue(person, kABPersonLastNameProperty));
+        
+        ABMultiValueRef phoneNumbers = ABRecordCopyValue(person, kABPersonPhoneProperty);
+        newPerson.phoneNumber = (__bridge_transfer NSString *) ABMultiValueCopyValueAtIndex(phoneNumbers, 0);
+        
+        newPerson.source = @"p";
+        
+        [phonePeople addObject:newPerson];
+
+    }
+    return phonePeople;
+    
+    //now we have all people from iPhone
+    
+}
+
+
+-(void)renewCoreDataWithPhoneContacts
+{
+    [self.currentFetchRequest setPredicate:[NSPredicate predicateWithFormat:@"source like p"]];
+    
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES selector:@selector(caseInsensitiveCompare:)];
+    NSArray *sortDescriptors = @[sortDescriptor];
+    [self.currentFetchRequest setSortDescriptors:sortDescriptors];
+    
+    self.currentFetchController = [[NSFetchedResultsController alloc] initWithFetchRequest:self.currentFetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:@"section" cacheName:nil];
+    
+    [self refetch];
+    
+    NSArray* cachedPhoneContacts = [self.currentFetchController fetchedObjects];
+    NSArray* freshPhoneContacts = [self getContactsFromPhone];
+    
+    
 }
 
 
@@ -98,6 +155,10 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
     unichar firstLetter = [name characterAtIndex:0];
     NSString* sectionName = [[[NSString alloc]initWithFormat:@"%c",firstLetter] uppercaseString];
     newObject.section = sectionName;
+    
+    
+    
+    newObject.source = @"a";
     
     [self.managedObjectContext save:nil];
     

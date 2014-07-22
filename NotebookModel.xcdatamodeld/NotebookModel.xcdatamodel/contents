@@ -5,8 +5,9 @@
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="phoneNumber" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="section" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="source" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
-        <element name="PhoneBookEntity" positionX="-54" positionY="-9" width="128" height="105"/>
+        <element name="PhoneBookEntity" positionX="-54" positionY="-9" width="128" height="120"/>
     </elements>
 </model>

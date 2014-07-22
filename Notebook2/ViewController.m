@@ -104,32 +104,39 @@
     
     NSString *cellIdentifier = @"Cell";
     
+    NoteBookRepository* object = [[ContactsModel model].currentFetchController objectAtIndexPath:indexPath];
+    
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
     if (cell == nil)
     {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:cellIdentifier];
     }
-
-    [self configureCellFromCoreData:cell atIndexPath:indexPath];
-    return cell;
-  
-}
-
-
-- (void)configureCellFromCoreData:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
-{
-    NoteBookRepository *object = [[ContactsModel model].currentFetchController objectAtIndexPath:indexPath];
+    
+    for (UIView* view in cell.contentView.subviews)
+    {
+        [view removeFromSuperview];
+    }
+    
+    UIView* view = cell.contentView;
+    [view setNeedsDisplay];
     
     NSMutableString* viewNameAndLastName = [[NSMutableString alloc]initWithString:[object.name description]] ;
     [viewNameAndLastName appendString:@" "];
     [viewNameAndLastName appendString:[[NSString alloc]initWithString:[object.lastName  description]]];
-    
     NSString* viewNumber = [[NSString alloc]initWithString:[object.phoneNumber description]];
+    
     
     [cell.textLabel setText: viewNameAndLastName];
     [cell.detailTextLabel setText: viewNumber];
-    
+    CGRect lFrame = CGRectMake(cell.frame.size.width - 20, 0, 20, cell.frame.size.height);
+    UILabel* sourceLabel = [[UILabel alloc] initWithFrame:lFrame];
+    [sourceLabel setText:object.source];
+    [view addSubview:sourceLabel];
+
+    return cell;
+  
 }
+
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {

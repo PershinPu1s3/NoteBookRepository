@@ -27,6 +27,7 @@
 		BC88B3701974025B00C6476D /* AddEditViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BC88B36E1974025B00C6476D /* AddEditViewController.m */; };
 		BC88B3711974025B00C6476D /* AddEditViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC88B36F1974025B00C6476D /* AddEditViewController.xib */; };
 		BCAD072B197E5BCB0037ED00 /* NoteBookRepository.m in Sources */ = {isa = PBXBuildFile; fileRef = BCAD072A197E5BCB0037ED00 /* NoteBookRepository.m */; };
+		BCAD072D197EA5CB0037ED00 /* FacebookSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BCAD072C197EA5CB0037ED00 /* FacebookSDK.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +70,7 @@
 		BC88B36F1974025B00C6476D /* AddEditViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AddEditViewController.xib; sourceTree = "<group>"; };
 		BCAD0729197E5BCB0037ED00 /* NoteBookRepository.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NoteBookRepository.h; path = ../NoteBookRepository.h; sourceTree = "<group>"; };
 		BCAD072A197E5BCB0037ED00 /* NoteBookRepository.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NoteBookRepository.m; path = ../NoteBookRepository.m; sourceTree = "<group>"; };
+		BCAD072C197EA5CB0037ED00 /* FacebookSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FacebookSDK.framework; path = ../../Documents/FacebookSDK/FacebookSDK.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,6 +79,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BC88B3331973F8A900C6476D /* CoreGraphics.framework in Frameworks */,
+				BCAD072D197EA5CB0037ED00 /* FacebookSDK.framework in Frameworks */,
 				BC88B3351973F8A900C6476D /* UIKit.framework in Frameworks */,
 				BC88B3311973F8A900C6476D /* Foundation.framework in Frameworks */,
 			);
@@ -118,6 +121,7 @@
 		BC88B32F1973F8A900C6476D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BCAD072C197EA5CB0037ED00 /* FacebookSDK.framework */,
 				BC88B3301973F8A900C6476D /* Foundation.framework */,
 				BC88B3321973F8A900C6476D /* CoreGraphics.framework */,
 				BC88B3341973F8A900C6476D /* UIKit.framework */,
@@ -411,6 +415,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/Pershin_Sergey/Documents/FacebookSDK,
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Notebook2/Notebook2-Prefix.pch";
 				INFOPLIST_FILE = "Notebook2/Notebook2-Info.plist";
@@ -424,6 +432,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/Users/Pershin_Sergey/Documents/FacebookSDK,
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Notebook2/Notebook2-Prefix.pch";
 				INFOPLIST_FILE = "Notebook2/Notebook2-Info.plist";
