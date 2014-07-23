@@ -31,12 +31,14 @@
 {
     [super viewDidLoad];
     
+    
     UIBarButtonItem *button = [[UIBarButtonItem alloc] initWithTitle:@"Add"
     style:UIBarButtonItemStylePlain target:self action:@selector(AddContactPressed)];
     
     
     self.navigationItem.rightBarButtonItem = button;
     self.navigationItem.title = @"Contacts";
+    
     
     //data = [[ContactsModel model] getContactsByQuery:@""];
     

@@ -64,7 +64,7 @@ typedef enum {eName, eLastName} SortingOption;
 
 - (void)initDefaultDictionaryWithSize:(NSInteger)size;
 
-//- (void)getContactsFromPhone;
+- (void)getContactsFromPhone;
 
 - (void)getContactsFromFacebook;
 

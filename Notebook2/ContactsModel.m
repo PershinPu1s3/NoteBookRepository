@@ -8,6 +8,9 @@
 
 #import "ContactsModel.h"
 #import <AddressBook/AddressBook.h>
+#import <FacebookSDK/FacebookSDK.h>
+
+
 
 
 
@@ -52,6 +55,7 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
         [sharedContactsModelInstance_.currentFetchRequest setFetchBatchSize:20];
         
         
+        
         [sharedContactsModelInstance_ renewFetchControllerByQuery:@""];
         [sharedContactsModelInstance_ refetch];
         
@@ -84,56 +88,128 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
 
 
 
-- (NSArray*)getContactsFromPhone
+
+
+
+- (void)getContactsFromPhone
 {
-    CFErrorRef *error = NULL;
-    ABAddressBookRef addressBook = ABAddressBookCreateWithOptions(NULL, error);
-    CFArrayRef allPeople = ABAddressBookCopyArrayOfAllPeople(addressBook);
-    CFIndex numberOfPeople = ABAddressBookGetPersonCount(addressBook);
+    //long shee(i)t
     
-    NSMutableArray* phonePeople = [[NSMutableArray alloc]init];
     
-    for(int i=0; i < numberOfPeople; i++)
-    {
-        NoteBookRepository* newPerson = [[NoteBookRepository alloc]init];
-        
-        ABRecordRef person = CFArrayGetValueAtIndex( allPeople, i );
-        
-        newPerson.name = (__bridge NSString *)(ABRecordCopyValue(person, kABPersonFirstNameProperty));
-        newPerson.lastName = (__bridge NSString *)(ABRecordCopyValue(person, kABPersonLastNameProperty));
-        
-        ABMultiValueRef phoneNumbers = ABRecordCopyValue(person, kABPersonPhoneProperty);
-        newPerson.phoneNumber = (__bridge_transfer NSString *) ABMultiValueCopyValueAtIndex(phoneNumbers, 0);
-        
-        newPerson.source = @"p";
-        
-        [phonePeople addObject:newPerson];
-
-    }
-    return phonePeople;
     
-    //now we have all people from iPhone
-    
-}
-
-
--(void)renewCoreDataWithPhoneContacts
-{
-    [self.currentFetchRequest setPredicate:[NSPredicate predicateWithFormat:@"source like p"]];
-    
+    //get all existing phone contacts from CoreData
+    [self.currentFetchRequest setPredicate:[NSPredicate predicateWithFormat:@"source like %@", @"p"]];
     NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES selector:@selector(caseInsensitiveCompare:)];
     NSArray *sortDescriptors = @[sortDescriptor];
     [self.currentFetchRequest setSortDescriptors:sortDescriptors];
-    
     self.currentFetchController = [[NSFetchedResultsController alloc] initWithFetchRequest:self.currentFetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:@"section" cacheName:nil];
+    [self refetch];
+    NSArray* cachedPhoneContacts = [self.currentFetchController fetchedObjects];
     
+    
+    
+    //set marks on CoreData contacts
+    NSInteger phoneContactsCapacity = [cachedPhoneContacts count];
+    NSMutableArray* coreDataPhoneContactsTrashMarks = [[NSMutableArray alloc] initWithCapacity:phoneContactsCapacity];
+    for(int i=0; i < phoneContactsCapacity; i++)
+    {
+        coreDataPhoneContactsTrashMarks[i] = [NSNumber numberWithBool:YES];
+    }
+    
+    
+    //get contacts from iPhone contact book
+    CFErrorRef error;
+    ABAddressBookRef addressBook = ABAddressBookCreateWithOptions(NULL, &error);
+    CFArrayRef allPeople = ABAddressBookCopyArrayOfAllPeople(addressBook);
+    CFIndex numberOfPeople = ABAddressBookGetPersonCount(addressBook);
+    
+    if(numberOfPeople < 0)
+    {
+        UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Cannot refresh iPhone contacts. Cached contacts have been loaded(if there are any)" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil];
+        [alert show];
+        return;
+    }
+    
+    
+    //synchronize two phone contacts buffers:
+    //if iPhone contact is missing in CoreData -> add it to CoreData
+    //if CoreData contact is missing in iPhone -> mark it, it's an irrelevant contact
+    for(int i=0; i < numberOfPeople; i++)
+    {
+        
+        NSString* phoneContactName;
+        NSString* phoneContactLastName;
+        NSString* phoneContactPhoneNumber;
+        
+        ABRecordRef person = CFArrayGetValueAtIndex( allPeople, i );
+        phoneContactName = (__bridge NSString *)(ABRecordCopyValue(person, kABPersonFirstNameProperty));
+        phoneContactLastName = (__bridge NSString *)(ABRecordCopyValue(person, kABPersonLastNameProperty));
+        ABMultiValueRef phoneNumbers = ABRecordCopyValue(person, kABPersonPhoneProperty);
+        phoneContactPhoneNumber = (__bridge_transfer NSString *) ABMultiValueCopyValueAtIndex(phoneNumbers, 0);
+        
+        BOOL phoneContactExistsInCoreData = NO;
+        
+        for(int i=0; i < phoneContactsCapacity; i++)
+        {
+            NoteBookRepository* currentCoreDataContact = cachedPhoneContacts[i];
+            if([currentCoreDataContact.name isEqualToString:phoneContactName ]&& [currentCoreDataContact.lastName isEqualToString:phoneContactLastName ]&& [currentCoreDataContact.phoneNumber isEqualToString:phoneContactPhoneNumber])
+            {
+                phoneContactExistsInCoreData = YES;     //no need to add from iPhone to CoreData
+                coreDataPhoneContactsTrashMarks[i] = @NO;
+                break;
+            }
+            
+        }
+        
+        if(!phoneContactExistsInCoreData)
+        {
+            //add contact
+            NoteBookRepository* newPerson = [[NoteBookRepository alloc]initWithEntity:self.entity insertIntoManagedObjectContext:self.managedObjectContext];
+            newPerson.name = phoneContactName;
+            newPerson.lastName = phoneContactLastName;
+            newPerson.phoneNumber = phoneContactPhoneNumber;
+            
+            unichar firstLetter = [newPerson.name characterAtIndex:0];
+            NSString* sectionName = [[[NSString alloc]initWithFormat:@"%c",firstLetter] uppercaseString];
+            newPerson.section = sectionName;
+            newPerson.source = @"p";
+            
+        }
+    }
+    
+    //delete all the marked contacts from context
+    
+    for(int i = 0; i < phoneContactsCapacity; i++)
+    {
+        if([coreDataPhoneContactsTrashMarks[i]  isEqual: @YES])
+        {
+            NoteBookRepository* deadObject = cachedPhoneContacts[i];
+            [self.managedObjectContext deleteObject:deadObject];
+        }
+    }
+    
+    
+    [self renewFetchControllerByQuery:@""];
     [self refetch];
     
-    NSArray* cachedPhoneContacts = [self.currentFetchController fetchedObjects];
-    NSArray* freshPhoneContacts = [self getContactsFromPhone];
+    //now we have all people from iPhone
+}
+
+
+
+
+-(void)renewCoreDataWithFacebookContacts
+{
+    //new SDK
+    //principle is the same as in iPhone contacts
+    //maybe later they will be united in one function
+    
+    
+    
     
     
 }
+
 
 
 - (NoteBookRepository*)getObjectAtIndexPath:(NSIndexPath*)path
@@ -144,7 +220,7 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
 
 - (BOOL) addPersonName:(NSString*)name withLastName:(NSString*)lastName andPhoneNumber:(NSString*)number
 {
-    //validity check should be done by ManagedObject itself. But how?
+    //add from application
     
     
     NoteBookRepository* newObject = [[NoteBookRepository alloc] initWithEntity:self.entity insertIntoManagedObjectContext:self.managedObjectContext];
@@ -196,7 +272,6 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
 }
 
 
-
 - (void) refetch
 {
 
@@ -229,29 +304,6 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
 
 
 
-    
-
-
-
-
-    
-//never called
-/*- (void) resetHeaders
-{
-    [self.currentFetchController performFetch:nil];
-    NSArray* allObjects = [self.currentFetchController fetchedObjects];
-    for(NSManagedObject* current in allObjects)
-    {
-        unichar firstLetter = [[current valueForKey:@"name"] characterAtIndex:0];
-        NSString* sectionName = [[[NSString alloc]initWithFormat:@"%c",firstLetter] uppercaseString];
-        [current setValue:sectionName forKey:@"section"];
-    }
-}*/
-
-
-
-
-
 
 - (BOOL) editPersonName:(NSString*)name withLastName:(NSString*)lastName andPhoneNumber:(NSString*)number atFetchIndexPath:(NSIndexPath*)path
 {
@@ -269,11 +321,6 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
     
     return YES;
 }
-
-
-
-
-//after changing request, adding, editing, or deleting
 
 
 

@@ -15,7 +15,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
-    [ContactsModel model];
+    //[ContactsModel model];
 
     _window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     
@@ -27,6 +27,7 @@
     self.window.rootViewController = nv;
     
     [self.window makeKeyAndVisible];
+    
     
     
     return YES;
