@@ -11,11 +11,16 @@
 #import "SinglePerson.h"
 #import "NoteBookRepository.h"
 
+
+
 @interface ViewController()
 {
     IBOutlet UITableView* contactsTable;
     IBOutlet UINavigationBar* contactsNavigationBar;
     IBOutlet UISearchBar* searchBar;
+    
+    
+    IBOutlet FBLoginView* facebookLoginView;
     //NSArray* data;
     
     //NSMutableArray* sectionHeaders;
@@ -39,15 +44,11 @@
     self.navigationItem.rightBarButtonItem = button;
     self.navigationItem.title = @"Contacts";
     
+
+    facebookLoginView = [[FBLoginView alloc] initWithReadPermissions:@[@"public_profile", @"email", @"user_friends"] ];
+
     
-    //data = [[ContactsModel model] getContactsByQuery:@""];
-    
-    //sectionHeaders = [[NSMutableArray alloc]init];
-    //elementsNumberInEachHeader = [[NSMutableArray alloc]init];
-    //[self renewHeaders];
-    
-	// Do any additional setup after loading the view, typically from a nib.
-    //self.navigationItem.title = @"Contacts";
+
 }
 
 - (void)didReceiveMemoryWarning
@@ -168,7 +169,7 @@
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
 
-    [[ContactsModel model] renewFetchControllerByQuery:searchText];
+    [[ContactsModel model] renewFetchControllerBySearchQuery:searchText];
     [self renewTableData];
     
 }
@@ -184,7 +185,25 @@
 
 
 
-    //[[ContactsModel model] writeToFile:@"notebook.txt"];
+- (void)loginViewShowingLoggedInUser:(FBLoginView *)loginView
+{
+
+}
+
+
+- (void)loginViewShowingLoggedOutUser:(FBLoginView *)loginView
+{
+
+}
+ 
+
+
+
+- (void)loginViewFetchedUserInfo:(FBLoginView *)loginView user:(id<FBGraphUser>)user
+{
+    [[ContactsModel model] getContactsFromFacebookForUser];
+    
+}
 
 
 

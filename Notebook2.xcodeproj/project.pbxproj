@@ -22,10 +22,10 @@
 		BC88B3551973F8A900C6476D /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC88B3341973F8A900C6476D /* UIKit.framework */; };
 		BC88B35D1973F8A900C6476D /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BC88B35B1973F8A900C6476D /* InfoPlist.strings */; };
 		BC88B35F1973F8A900C6476D /* Notebook2Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = BC88B35E1973F8A900C6476D /* Notebook2Tests.m */; };
-		BC88B3691973F8F400C6476D /* ViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC88B3681973F8F400C6476D /* ViewController.xib */; };
 		BC88B36C197400AF00C6476D /* ContactsModel.m in Sources */ = {isa = PBXBuildFile; fileRef = BC88B36B197400AF00C6476D /* ContactsModel.m */; };
 		BC88B3701974025B00C6476D /* AddEditViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BC88B36E1974025B00C6476D /* AddEditViewController.m */; };
-		BC88B3711974025B00C6476D /* AddEditViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC88B36F1974025B00C6476D /* AddEditViewController.xib */; };
+		BCA58372197FF15F009B4D00 /* AddEditViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = BCA58374197FF15F009B4D00 /* AddEditViewController.xib */; };
+		BCA5837619802602009B4D00 /* ViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = BCA5837519802602009B4D00 /* ViewController.xib */; };
 		BCAD072B197E5BCB0037ED00 /* NoteBookRepository.m in Sources */ = {isa = PBXBuildFile; fileRef = BCAD072A197E5BCB0037ED00 /* NoteBookRepository.m */; };
 		BCAD072D197EA5CB0037ED00 /* FacebookSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BCAD072C197EA5CB0037ED00 /* FacebookSDK.framework */; };
 /* End PBXBuildFile section */
@@ -62,12 +62,12 @@
 		BC88B35A1973F8A900C6476D /* Notebook2Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Notebook2Tests-Info.plist"; sourceTree = "<group>"; };
 		BC88B35C1973F8A900C6476D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		BC88B35E1973F8A900C6476D /* Notebook2Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Notebook2Tests.m; sourceTree = "<group>"; };
-		BC88B3681973F8F400C6476D /* ViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ViewController.xib; sourceTree = "<group>"; };
 		BC88B36A197400AF00C6476D /* ContactsModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ContactsModel.h; path = Notebook2/ContactsModel.h; sourceTree = "<group>"; };
 		BC88B36B197400AF00C6476D /* ContactsModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ContactsModel.m; path = Notebook2/ContactsModel.m; sourceTree = "<group>"; };
 		BC88B36D1974025B00C6476D /* AddEditViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddEditViewController.h; sourceTree = "<group>"; };
 		BC88B36E1974025B00C6476D /* AddEditViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddEditViewController.m; sourceTree = "<group>"; };
-		BC88B36F1974025B00C6476D /* AddEditViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AddEditViewController.xib; sourceTree = "<group>"; };
+		BCA58373197FF15F009B4D00 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/AddEditViewController.xib; sourceTree = "<group>"; };
+		BCA5837519802602009B4D00 /* ViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ViewController.xib; sourceTree = "<group>"; };
 		BCAD0729197E5BCB0037ED00 /* NoteBookRepository.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NoteBookRepository.h; path = ../NoteBookRepository.h; sourceTree = "<group>"; };
 		BCAD072A197E5BCB0037ED00 /* NoteBookRepository.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NoteBookRepository.m; path = ../NoteBookRepository.m; sourceTree = "<group>"; };
 		BCAD072C197EA5CB0037ED00 /* FacebookSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FacebookSDK.framework; path = ../../Documents/FacebookSDK/FacebookSDK.framework; sourceTree = "<group>"; };
@@ -137,12 +137,12 @@
 				BC88B3401973F8A900C6476D /* AppDelegate.m */,
 				BC88B3481973F8A900C6476D /* ViewController.h */,
 				BC88B3491973F8A900C6476D /* ViewController.m */,
-				BC88B3681973F8F400C6476D /* ViewController.xib */,
+				BCA5837519802602009B4D00 /* ViewController.xib */,
 				BC88B34B1973F8A900C6476D /* Images.xcassets */,
 				BC88B3371973F8A900C6476D /* Supporting Files */,
 				BC88B36D1974025B00C6476D /* AddEditViewController.h */,
 				BC88B36E1974025B00C6476D /* AddEditViewController.m */,
-				BC88B36F1974025B00C6476D /* AddEditViewController.xib */,
+				BCA58374197FF15F009B4D00 /* AddEditViewController.xib */,
 			);
 			name = ViewController;
 			path = Notebook2;
@@ -267,9 +267,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BC88B3711974025B00C6476D /* AddEditViewController.xib in Resources */,
-				BC88B3691973F8F400C6476D /* ViewController.xib in Resources */,
+				BCA58372197FF15F009B4D00 /* AddEditViewController.xib in Resources */,
 				BC88B34C1973F8A900C6476D /* Images.xcassets in Resources */,
+				BCA5837619802602009B4D00 /* ViewController.xib in Resources */,
 				BC88B33B1973F8A900C6476D /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -333,6 +333,14 @@
 				BC88B35C1973F8A900C6476D /* en */,
 			);
 			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		BCA58374197FF15F009B4D00 /* AddEditViewController.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				BCA58373197FF15F009B4D00 /* en */,
+			);
+			name = AddEditViewController.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

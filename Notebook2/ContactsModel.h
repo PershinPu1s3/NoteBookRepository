@@ -10,6 +10,7 @@
 #import <CoreData/CoreData.h>
 #import "SinglePerson.h"
 #import "NoteBookRepository.h"
+#import <FacebookSDK/FacebookSDK.h>
 
 
 
@@ -19,7 +20,7 @@ typedef enum {eName, eLastName} SortingOption;
 
 
 
-@interface ContactsModel : NSObject<NSFetchedResultsControllerDelegate>
+@interface ContactsModel : NSObject<NSFetchedResultsControllerDelegate>//, FBSessionDelegate>
 
 
 
@@ -45,18 +46,19 @@ typedef enum {eName, eLastName} SortingOption;
 
 
 
+- (void)renewFetchControllerBySearchQuery:(NSString*)query;
 
-- (void) renewFetchControllerByQuery:(NSString*)query;
+- (void)renewFetchControllerByPredicate:(NSPredicate*)predicate;
 
-- (BOOL) addPersonName:(NSString*)name withLastName:(NSString*)lastName andPhoneNumber:(NSString*)number;
+- (BOOL)addPersonName:(NSString*)name withLastName:(NSString*)lastName andPhoneNumber:(NSString*)number;
 
-- (BOOL) editPersonName:(NSString*)name withLastName:(NSString*)lastName andPhoneNumber:(NSString*)number atFetchIndexPath:(NSIndexPath*)path;
+- (BOOL)editPersonName:(NSString*)name withLastName:(NSString*)lastName andPhoneNumber:(NSString*)number atFetchIndexPath:(NSIndexPath*)path;
 
-- (BOOL) deletePersonAtIndexPath:(NSIndexPath*)path;
+- (BOOL)deletePersonAtIndexPath:(NSIndexPath*)path;
 
 - (NoteBookRepository*)getObjectAtIndexPath:(NSIndexPath*)path;
 
-- (void) refetch;
+- (void)refetch;
 //after changing request, adding, editing, or deleting
 
 //- (void) resetHeaders;
@@ -66,7 +68,7 @@ typedef enum {eName, eLastName} SortingOption;
 
 - (void)getContactsFromPhone;
 
-- (void)getContactsFromFacebook;
+- (void)getContactsFromFacebookForUser;
 
 
 

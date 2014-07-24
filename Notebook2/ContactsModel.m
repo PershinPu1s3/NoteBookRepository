@@ -8,7 +8,6 @@
 
 #import "ContactsModel.h"
 #import <AddressBook/AddressBook.h>
-#import <FacebookSDK/FacebookSDK.h>
 
 
 
@@ -56,7 +55,7 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
         
         
         
-        [sharedContactsModelInstance_ renewFetchControllerByQuery:@""];
+        [sharedContactsModelInstance_ renewFetchControllerBySearchQuery:@""];
         [sharedContactsModelInstance_ refetch];
         
         if([[sharedContactsModelInstance_.currentFetchController fetchedObjects]count] == 0)
@@ -69,6 +68,16 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
         
         
         [sharedContactsModelInstance_ getContactsFromPhone ];
+        
+        
+        //facebook
+        
+        
+        
+        //[sharedContactsModelInstance_ getContactsFromFacebookForUser:nil];
+
+        
+        
       
     }
     return sharedContactsModelInstance_;
@@ -189,7 +198,7 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
     }
     
     
-    [self renewFetchControllerByQuery:@""];
+    [self renewFetchControllerBySearchQuery:@""];
     [self refetch];
     
     //now we have all people from iPhone
@@ -198,15 +207,130 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
 
 
 
--(void)renewCoreDataWithFacebookContacts
+- (void)getContactsFromFacebookForUser
 {
-    //new SDK
-    //principle is the same as in iPhone contacts
-    //maybe later they will be united in one function
+
+    
+    FBSessionState currentState = FBSession.activeSession.state;
     
     
-    
-    
+    if (FBSession.activeSession.isOpen)
+    {
+        
+        [FBRequestConnection startWithGraphPath:@"/me/taggable_friends"
+                                     parameters:nil
+                                     HTTPMethod:@"GET"
+                              completionHandler:^(
+                                                  FBRequestConnection *connection,
+                                                  id result,
+                                                  NSError *error
+                                                  )
+        {
+            if(error)
+            {
+                UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Cannot refresh facebook contacts. Cached contacts have been loaded(if there are any)" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil];
+                [alert show];
+            }
+            else
+            {
+                //long and hard syncronization, like iPhone contacts one
+                
+                
+                [self.currentFetchRequest setPredicate:[NSPredicate predicateWithFormat:@"source like %@", @"f"]];
+                NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES selector:@selector(caseInsensitiveCompare:)];
+                NSArray *sortDescriptors = @[sortDescriptor];
+                [self.currentFetchRequest setSortDescriptors:sortDescriptors];
+                self.currentFetchController = [[NSFetchedResultsController alloc] initWithFetchRequest:self.currentFetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:@"section" cacheName:nil];
+                [self refetch];
+                NSArray* cachedPhoneContacts = [self.currentFetchController fetchedObjects];
+                
+                
+                //set marks on CoreData contacts
+                NSInteger phoneContactsCapacity = [cachedPhoneContacts count];
+                NSMutableArray* coreDataPhoneContactsTrashMarks = [[NSMutableArray alloc] initWithCapacity:phoneContactsCapacity];
+                for(int i=0; i < phoneContactsCapacity; i++)
+                {
+                    coreDataPhoneContactsTrashMarks[i] = [NSNumber numberWithBool:YES];
+                }
+                
+                
+                
+                
+                
+                NSArray* facebookContacts = (NSArray*)[result data];
+                
+
+                
+                for(id<FBGraphUser> currentFacebookFriend in facebookContacts)
+                {
+                    
+                    NSString* facebookContactName;
+                    NSString* facebookContactLastName;
+                    
+                    NSArray* facebookData = [currentFacebookFriend.name componentsSeparatedByString:@" "];
+                    
+                    facebookContactName = [facebookData firstObject];
+                    facebookContactLastName = [facebookData lastObject];
+                   
+                    
+                    BOOL facebookContactExistsInCoreData = NO;
+                    
+                    for(int i=0; i < phoneContactsCapacity; i++)
+                    {
+                        NoteBookRepository* currentCoreDataContact = cachedPhoneContacts[i];
+                        if([currentCoreDataContact.name isEqualToString:facebookContactName ]&& [currentCoreDataContact.lastName isEqualToString:facebookContactLastName ])
+                        {
+                            facebookContactExistsInCoreData = YES;     //no need to add from iPhone to CoreData
+                            coreDataPhoneContactsTrashMarks[i] = @NO;
+                            break;
+                        }
+                        
+                    }
+                    
+                    if(!facebookContactExistsInCoreData)
+                    {
+                        //add contact
+                        NoteBookRepository* newPerson = [[NoteBookRepository alloc]initWithEntity:self.entity insertIntoManagedObjectContext:self.managedObjectContext];
+                        newPerson.name = facebookContactName;
+                        newPerson.lastName = facebookContactLastName;
+                        newPerson.phoneNumber = @"";
+                        
+                        unichar firstLetter = [newPerson.name characterAtIndex:0];
+                        NSString* sectionName = [[[NSString alloc]initWithFormat:@"%c",firstLetter] uppercaseString];
+                        newPerson.section = sectionName;
+                        newPerson.source = @"f";
+                        
+                    }
+                }
+                
+                //delete all the marked contacts from context
+                
+                for(int i = 0; i < phoneContactsCapacity; i++)
+                {
+                    if([coreDataPhoneContactsTrashMarks[i]  isEqual: @YES])
+                    {
+                        NoteBookRepository* deadObject = cachedPhoneContacts[i];
+                        [self.managedObjectContext deleteObject:deadObject];
+                    }
+                }
+
+                [self renewFetchControllerBySearchQuery:@""];
+                [self refetch];
+                
+                
+                //and now we have all people from facebook
+                
+            }
+            
+        }];
+        
+    }
+    else
+    {
+        UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Facebook session hasn't been created. Cached contacts have been loaded(if there are any)" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil];
+        [alert show];
+    }
+
     
 }
 
@@ -252,12 +376,10 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
 
 
 
--(void) renewFetchControllerByQuery:(NSString*)query
+-(void) renewFetchControllerByPredicate:(NSPredicate*)predicate
 {
-    if([query isEqualToString:@""])
-        [self.currentFetchRequest setPredicate:[NSPredicate predicateWithValue:YES]];
-    else
-        [self.currentFetchRequest setPredicate:[NSPredicate predicateWithFormat:@"name beginswith [cd]%@ OR lastName beginswith [cd]%@ OR phoneNumber beginswith [cd]%@", query, query ]];
+   
+    [self.currentFetchRequest setPredicate:predicate];
     
     
     NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES selector:@selector(caseInsensitiveCompare:)];
@@ -265,9 +387,21 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
     [self.currentFetchRequest setSortDescriptors:sortDescriptors];
     
     self.currentFetchController = [[NSFetchedResultsController alloc] initWithFetchRequest:self.currentFetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:@"section" cacheName:nil];
+}
+
+
+
+
+-(void) renewFetchControllerBySearchQuery:(NSString*)query
+{
+    NSPredicate* currentPredicate;// = [[NSPredicate alloc]init];
     
+    if([query isEqualToString:@""])
+        currentPredicate = [NSPredicate predicateWithValue:YES];
+    else
+        currentPredicate = [NSPredicate predicateWithFormat:@"name beginswith [cd]%@ OR lastName beginswith [cd]%@ OR phoneNumber beginswith [cd]%@", query, query, query ];
     
-    
+    [self renewFetchControllerByPredicate:currentPredicate];
     
 }
 
@@ -282,22 +416,26 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
 
 + (NSString*)validatePersonName:(NSString*)name lastName:(NSString*)lastName phoneNumber:(NSString*)number
 {
+    
+   
     NSMutableString* result = [[NSMutableString alloc]initWithString:@""];
     
+        if([name rangeOfString:@"[^A-Za-z .]" options:NSRegularExpressionSearch].location != NSNotFound)
+        {
+            [result appendString:@" Bad name"];
+        }
+        if([lastName rangeOfString:@"[^A-Za-z .]" options:NSRegularExpressionSearch].location != NSNotFound)
+        {
+            [result appendString:@" Bad last name"];
+        }
+        //rude
+        if([number rangeOfString:@"[+]([0-9])\{12\}" options:NSRegularExpressionSearch].location == NSNotFound || number.length > 13)
+        {
+            [result appendString:@" Bad phone number"];
+        }
     
-    if([name rangeOfString:@"[^A-Za-z .]" options:NSRegularExpressionSearch].location != NSNotFound)
-    {
-        [result appendString:@" Bad name"];
-    }
-    if([lastName rangeOfString:@"[^A-Za-z .]" options:NSRegularExpressionSearch].location != NSNotFound)
-    {
-        [result appendString:@" Bad last name"];
-    }
-    //rude
-    if([number rangeOfString:@"[+]([0-9])\{12\}" options:NSRegularExpressionSearch].location == NSNotFound || number.length > 13)
-    {
-        [result appendString:@" Bad phone number"];
-    }
+    //else we have no power for facebook or iPhone format
+
     
     return result;
 }
