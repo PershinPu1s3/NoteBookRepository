@@ -19,4 +19,6 @@
 
 - (void)sessionStateChanged:(FBSession *)session state:(FBSessionState) state error:(NSError *)error;
 
+- (BOOL)openSessionWithAllowLoginUI:(BOOL)allowLoginUI;
+
 @end

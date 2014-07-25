@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		BC562318197D463F00A9D8C8 /* NotebookModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BC562316197D463F00A9D8C8 /* NotebookModel.xcdatamodeld */; };
+		BC5BE8F91982BA03003792FC /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC5BE8F81982BA03003792FC /* MessageUI.framework */; };
 		BC5CDFB51975499900E636B5 /* SinglePerson.m in Sources */ = {isa = PBXBuildFile; fileRef = BC5CDFB41975499900E636B5 /* SinglePerson.m */; };
 		BC88B3311973F8A900C6476D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC88B3301973F8A900C6476D /* Foundation.framework */; };
 		BC88B3331973F8A900C6476D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC88B3321973F8A900C6476D /* CoreGraphics.framework */; };
@@ -42,6 +43,7 @@
 
 /* Begin PBXFileReference section */
 		BC562317197D463F00A9D8C8 /* NotebookModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = NotebookModel.xcdatamodel; sourceTree = "<group>"; };
+		BC5BE8F81982BA03003792FC /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		BC5CDFB31975499900E636B5 /* SinglePerson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SinglePerson.h; sourceTree = "<group>"; };
 		BC5CDFB41975499900E636B5 /* SinglePerson.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SinglePerson.m; sourceTree = "<group>"; };
 		BC88B32D1973F8A900C6476D /* Notebook2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Notebook2.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -79,6 +81,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BC88B3331973F8A900C6476D /* CoreGraphics.framework in Frameworks */,
+				BC5BE8F91982BA03003792FC /* MessageUI.framework in Frameworks */,
 				BCAD072D197EA5CB0037ED00 /* FacebookSDK.framework in Frameworks */,
 				BC88B3351973F8A900C6476D /* UIKit.framework in Frameworks */,
 				BC88B3311973F8A900C6476D /* Foundation.framework in Frameworks */,
@@ -121,6 +124,7 @@
 		BC88B32F1973F8A900C6476D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BC5BE8F81982BA03003792FC /* MessageUI.framework */,
 				BCAD072C197EA5CB0037ED00 /* FacebookSDK.framework */,
 				BC88B3301973F8A900C6476D /* Foundation.framework */,
 				BC88B3321973F8A900C6476D /* CoreGraphics.framework */,

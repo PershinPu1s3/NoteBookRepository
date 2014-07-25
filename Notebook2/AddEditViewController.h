@@ -9,7 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "SinglePerson.h"
 
-@interface AddEditViewController : UIViewController<UITextFieldDelegate>
+#import <MessageUI/MessageUI.h>
+
+@interface AddEditViewController : UIViewController<UITextFieldDelegate, MFMailComposeViewControllerDelegate, UINavigationControllerDelegate>
 
 @property (strong, nonatomic) NSIndexPath* currentPersonIndexPath;
 

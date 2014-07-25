@@ -7,7 +7,7 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ViewController">
             <connections>
                 <outlet property="contactsTable" destination="L5b-PV-e0p" id="jjb-Z4-b64"/>
-                <outlet property="facebookLoginView" destination="IKS-Kt-npR" id="hh0-TG-TBt"/>
+                <outlet property="facebookLoginView" destination="IKS-Kt-npR" id="tgb-BZ-Wti"/>
                 <outlet property="searchBar" destination="W9I-es-Ja0" id="6Pd-yQ-ROR"/>
                 <outlet property="view" destination="jdQ-2K-uKP" id="i11-Mu-c1d"/>
             </connections>
@@ -38,9 +38,12 @@
                     <rect key="frame" x="0.0" y="518" width="320" height="50"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                    <accessibility key="accessibilityConfiguration">
+                        <accessibilityTraits key="traits" none="YES" notEnabled="YES"/>
+                    </accessibility>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
                     <connections>
-                        <outlet property="delegate" destination="-1" id="FvE-6Y-2yd"/>
+                        <outlet property="delegate" destination="-1" id="2i7-Qf-P7d"/>
                     </connections>
                 </view>
             </subviews>

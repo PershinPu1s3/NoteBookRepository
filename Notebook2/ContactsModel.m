@@ -64,13 +64,20 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
         }
         
 
-        [sharedContactsModelInstance_.currentFetchController performFetch:nil];
+        //[sharedContactsModelInstance_.currentFetchController performFetch:nil];
         
         
         [sharedContactsModelInstance_ getContactsFromPhone ];
         
         
+        [sharedContactsModelInstance_ renewFetchControllerBySearchQuery:@""];
+        [sharedContactsModelInstance_ refetch];
+        
         //facebook
+        
+        
+        
+
         
         
         
@@ -106,6 +113,34 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
     
     
     
+    //first we have to ask permission
+    //but I have no stable code for it
+    //
+
+    
+    //get contacts from iPhone contact book
+    
+    
+    CFErrorRef error;
+    ABAddressBookRef addressBook = ABAddressBookCreateWithOptions(NULL, &error);
+    
+    if (ABAddressBookGetAuthorizationStatus() == kABAuthorizationStatusNotDetermined)
+    {
+        dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+        ABAddressBookRequestAccessWithCompletion(addressBook, ^(bool granted, CFErrorRef error)
+        {
+            dispatch_semaphore_signal(sema);
+        });
+        dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+    }
+    if (ABAddressBookGetAuthorizationStatus() == kABAuthorizationStatusDenied)
+    {
+        UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"You have denied access to relevant iPhone contacts. Cached contacts will be displayed." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil];
+        [alert show];
+        return;
+    }
+
+    
     //get all existing phone contacts from CoreData
     [self.currentFetchRequest setPredicate:[NSPredicate predicateWithFormat:@"source like %@", @"p"]];
     NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES selector:@selector(caseInsensitiveCompare:)];
@@ -114,9 +149,6 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
     self.currentFetchController = [[NSFetchedResultsController alloc] initWithFetchRequest:self.currentFetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:@"section" cacheName:nil];
     [self refetch];
     NSArray* cachedPhoneContacts = [self.currentFetchController fetchedObjects];
-    
-    
-    
     //set marks on CoreData contacts
     NSInteger phoneContactsCapacity = [cachedPhoneContacts count];
     NSMutableArray* coreDataPhoneContactsTrashMarks = [[NSMutableArray alloc] initWithCapacity:phoneContactsCapacity];
@@ -126,9 +158,8 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
     }
     
     
-    //get contacts from iPhone contact book
-    CFErrorRef error;
-    ABAddressBookRef addressBook = ABAddressBookCreateWithOptions(NULL, &error);
+    
+    
     CFArrayRef allPeople = ABAddressBookCopyArrayOfAllPeople(addressBook);
     CFIndex numberOfPeople = ABAddressBookGetPersonCount(addressBook);
     
@@ -136,6 +167,7 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
     {
         UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Cannot refresh iPhone contacts. Cached contacts have been loaded(if there are any)" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil];
         [alert show];
+
         return;
     }
     
@@ -174,9 +206,10 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
         {
             //add contact
             NoteBookRepository* newPerson = [[NoteBookRepository alloc]initWithEntity:self.entity insertIntoManagedObjectContext:self.managedObjectContext];
-            newPerson.name = phoneContactName;
-            newPerson.lastName = phoneContactLastName;
-            newPerson.phoneNumber = phoneContactPhoneNumber;
+            newPerson.name = phoneContactName ? phoneContactName : @"";
+            newPerson.lastName = phoneContactLastName ? phoneContactLastName : @"";
+            newPerson.phoneNumber = phoneContactPhoneNumber ?  phoneContactPhoneNumber : @"";
+            
             
             unichar firstLetter = [newPerson.name characterAtIndex:0];
             NSString* sectionName = [[[NSString alloc]initWithFormat:@"%c",firstLetter] uppercaseString];
@@ -196,6 +229,8 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
             [self.managedObjectContext deleteObject:deadObject];
         }
     }
+    
+    [self.managedObjectContext save:nil];
     
     
     [self renewFetchControllerBySearchQuery:@""];
@@ -313,6 +348,8 @@ static ContactsModel* sharedContactsModelInstance_ = nil;
                         [self.managedObjectContext deleteObject:deadObject];
                     }
                 }
+                
+                [self.managedObjectContext save:nil];
 
                 [self renewFetchControllerBySearchQuery:@""];
                 [self refetch];

@@ -43,13 +43,18 @@
     
     self.navigationItem.rightBarButtonItem = button;
     self.navigationItem.title = @"Contacts";
-    
 
+    
     facebookLoginView = [[FBLoginView alloc] initWithReadPermissions:@[@"public_profile", @"email", @"user_friends"] ];
-
     
+    
+
+
 
 }
+
+
+
 
 - (void)didReceiveMemoryWarning
 {
@@ -187,12 +192,14 @@
 
 - (void)loginViewShowingLoggedInUser:(FBLoginView *)loginView
 {
-
+    
 }
 
 
 - (void)loginViewShowingLoggedOutUser:(FBLoginView *)loginView
 {
+    
+    
 
 }
  

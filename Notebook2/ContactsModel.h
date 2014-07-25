@@ -59,6 +59,7 @@ typedef enum {eName, eLastName} SortingOption;
 - (NoteBookRepository*)getObjectAtIndexPath:(NSIndexPath*)path;
 
 - (void)refetch;
+
 //after changing request, adding, editing, or deleting
 
 //- (void) resetHeaders;
